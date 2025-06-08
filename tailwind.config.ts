@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss"
 
 const config = {
-  darkMode: "class",
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -28,6 +27,7 @@ const config = {
       fontFamily: {
         sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
+        "sf-rounded": ["SF-Pro-Rounded", "var(--font-sans)"],
       },
       colors: {
         border: "var(--border)",
@@ -35,6 +35,7 @@ const config = {
         ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "index-yellow": "var(--index-yellow)",
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
