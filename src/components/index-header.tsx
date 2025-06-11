@@ -43,6 +43,10 @@ export function IndexHeader() {
             <span>Create Public Good</span>
             <span className="hover-text">Create Public Good</span>
           </NavLink>
+          <NavLink href="/setup/resume">
+            <span>Resume Setup</span>
+            <span className="hover-text">Resume Setup</span>
+          </NavLink>
           <NavLink href="/about">
             <span>About Us</span>
             <span className="hover-text">About Us</span>
@@ -75,6 +79,9 @@ export function IndexHeader() {
             </MobileNavLink>
             <MobileNavLink href="/create" onClick={() => setIsMobileMenuOpen(false)}>
               Create Public Good
+            </MobileNavLink>
+            <MobileNavLink href="/setup/resume" onClick={() => setIsMobileMenuOpen(false)}>
+              Resume Setup
             </MobileNavLink>
             <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>
               About Us

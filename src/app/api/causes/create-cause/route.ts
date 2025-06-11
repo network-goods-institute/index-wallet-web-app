@@ -83,6 +83,8 @@ export async function POST(request: NextRequest) {
     });
 
     const responseData = await response.json();
+    console.log('Backend response:', responseData);
+    console.log('Response status:', response.status);
 
     if (!response.ok) {
       // Forward the error from the backend
@@ -92,11 +94,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Forward the successful response
-    return NextResponse.json(
-      responseData,
-      { status: response.status }
-    );
+    // Handle the response based on the flow type
+    // Check for Stripe Connect flow indicators
+    if (responseData.onboarding_url && responseData.draft_id) {
+      // New Stripe Connect flow - pass through the exact response
+      return NextResponse.json(
+        responseData,
+        { status: 200 }
+      );
+    } else if ((responseData.stripeUrl && responseData.draftId) || 
+               (responseData.stripe_url && responseData.draft_id)) {
+      // Alternative naming conventions
+      return NextResponse.json({
+        stripeUrl: responseData.stripeUrl || responseData.stripe_url,
+        draftId: responseData.draftId || responseData.draft_id,
+        stripe_url: responseData.stripe_url || responseData.stripeUrl,
+        draft_id: responseData.draft_id || responseData.draftId,
+        onboarding_url: responseData.stripeUrl || responseData.stripe_url,
+        message: 'Redirecting to Stripe for payment setup'
+      }, { status: 200 });
+    } else {
+      // Legacy flow or direct cause creation - forward all fields
+      return NextResponse.json(
+        responseData,
+        { status: response.status }
+      );
+    }
   } catch (error) {
     console.error('Error creating cause:', error);
     return NextResponse.json(

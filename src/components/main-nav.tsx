@@ -22,6 +22,12 @@ export function MainNav() {
           Create Public Good
         </Link>
         <Link
+          href="/setup/resume"
+          className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Resume Setup
+        </Link>
+        <Link
           href="/about"
           className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >

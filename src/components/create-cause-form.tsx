@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ImageUpload } from "@/components/ui/image-upload"
+import { ProgressIndicator } from "@/components/ui/progress-indicator"
+import { AlertCircle, ShieldCheck } from "lucide-react"
 
 interface CauseFormData {
   name: string
@@ -28,6 +30,7 @@ interface CauseFormData {
 export function CreateCauseForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
   const [formData, setFormData] = useState<CauseFormData>({
     name: "",
     organization: "",
@@ -88,6 +91,7 @@ export function CreateCauseForm() {
       })
 
       const data = await response.json()
+      console.log('Response from backend:', data)
 
       if (!response.ok) {
         // Handle backend error format
@@ -99,25 +103,48 @@ export function CreateCauseForm() {
         console.error('Error submitting form:', data)
       } else {
         // Handle successful response
-        if (data.causeId) {
-          // Navigate to the cause page
-          router.push(`/causes/${data.causeToken}`);
-        } else {
-          setSuccessMessage('Your cause has been created successfully!');
-          console.log('Cause created successfully:', data);
+        console.log('Successful response data:', data)
+        
+        if (data.onboarding_url && data.draft_id) {
+          // Stripe Connect flow with onboarding URL
+          localStorage.setItem('currentDraftId', data.draft_id);
+          setIsRedirecting(true);
+          setSuccessMessage('Redirecting to secure payment setup...');
           
-          // Reset form after successful submission
-          setFormData({
-            name: "",
-            organization: "",
-            description: "",
-            long_description: "",
-            creator_email: "",
-            token_symbol: "",
-            token_name: "",
-            cause_image_url: "",
-            token_image_url: ""
-          });
+          // Redirect to Stripe Connect
+          setTimeout(() => {
+            window.location.href = data.onboarding_url;
+          }, 1500);
+        } else if (data.stripeUrl && data.draftId) {
+          // Alternative naming (camelCase)
+          localStorage.setItem('currentDraftId', data.draftId);
+          setIsRedirecting(true);
+          setSuccessMessage('Redirecting to secure payment setup...');
+          
+          // Redirect to Stripe Connect
+          setTimeout(() => {
+            window.location.href = data.stripeUrl;
+          }, 1500);
+        } else if (data.stripe_url && data.draft_id) {
+          // Alternative naming convention (snake_case)
+          localStorage.setItem('currentDraftId', data.draft_id);
+          setIsRedirecting(true);
+          setSuccessMessage('Redirecting to secure payment setup...');
+          
+          // Redirect to Stripe Connect
+          setTimeout(() => {
+            window.location.href = data.stripe_url;
+          }, 1500);
+        } else if (data.causeId || data.cause_id) {
+          // Legacy flow - direct cause creation
+          const causeToken = data.causeToken || data.cause_token || data.token || data.causeId || data.cause_id;
+          router.push(`/causes/${causeToken}`);
+        } else if (data.id && data.token) {
+          // Another possible format
+          router.push(`/causes/${data.token}`);
+        } else {
+          console.error('Unexpected response format:', data);
+          setErrors(['The cause was created but we received an unexpected response format. Please check your email for further instructions.']);
         }
       }
     } catch (error) {
@@ -128,8 +155,28 @@ export function CreateCauseForm() {
     }
   }
 
+  const progressSteps = [
+    { label: "Cause Details", status: "current" as const },
+    { label: "Payment Setup", status: "pending" as const }
+  ];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      <ProgressIndicator steps={progressSteps} className="mb-8" />
+      
+      <Card className="border-primary/20">
+        <CardContent className="pt-6">
+          <div className="flex items-start space-x-3 mb-4">
+            <ShieldCheck className="h-5 w-5 text-primary mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-medium">Secure Two-Step Process</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                After submitting your cause details, you'll be redirected to Stripe's secure platform to set up payment processing. This ensures your donations are handled safely and compliantly.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
@@ -290,8 +337,8 @@ export function CreateCauseForm() {
       )}
       
       <div className="flex justify-end space-x-4">
-        <Button type="submit" onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create Cause"}
+        <Button type="submit" onClick={handleSubmit} disabled={isSubmitting || isRedirecting} size="lg">
+          {isRedirecting ? "Redirecting to Payment Setup..." : isSubmitting ? "Creating..." : "Continue to Payment Setup"}
         </Button>
       </div>
     </form>

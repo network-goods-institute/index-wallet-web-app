@@ -300,12 +300,12 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                   )}
                 </div>
 
-                {/* Donation Button */}
+                {/* Donation Form */}
                 {walletAddress ? (
                   <DonationForm 
                     causeId={cause._id.$oid} 
                     walletAddress={walletAddress} 
-                    paymentLink={cause.payment_link}
+                    causeName={cause.name}
                   />
                 ) : (
                   <Button 
