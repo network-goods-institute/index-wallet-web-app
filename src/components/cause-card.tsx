@@ -28,10 +28,13 @@ interface CauseCardProps {
   updated_at?: {
     $date: Date
   }
+  amount_donated?: number
+  tokens_purchased?: number
+  current_price?: number
 }
 
 // Generate a consistent color based on token name
-function getTokenColor(tokenName: string): string {
+function getTokenColor(tokenName: string): { bg: string; border: string } {
   const colors = [
     { bg: "#E7F0FF", border: "#0046BE" }, // Blue
     { bg: "#F0E4FC", border: "#A856F7" }, // Purple
@@ -45,7 +48,7 @@ function getTokenColor(tokenName: string): string {
 }
 
 // Generate placeholder image based on cause name
-function getPlaceholderImage(causeName: string): string {
+function getPlaceholderImage(_causeName: string): string {
   // You can replace this with actual token images when available
   const imageTypes = [
     "/images/banner_image.png", // Use existing banner as placeholder
@@ -70,16 +73,8 @@ function getTokenImage(tokenImageUrl: string | undefined, tokenSymbol: string): 
   return { type: 'initials', content: initials }
 }
 
-// Create URL-friendly slug from token name
-function createSlug(tokenName: string): string {
-  return tokenName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
 
 export function CauseCard({
-  _id,
   name,
   organization,
   description,
@@ -87,9 +82,10 @@ export function CauseCard({
   token_symbol,
   token_image_url,
   total_raised,
+  current_price,
+  amount_donated,
 }: CauseCardProps) {
   const tokenColors = getTokenColor(token_name)
-  const tokenSlug = createSlug(token_name)
   const tokenImage = getTokenImage(token_image_url, token_symbol)
   
   return (
@@ -153,7 +149,7 @@ export function CauseCard({
 
       <CardHeader className="p-5 pb-3">
         <div className="space-y-2">
-          <Link href={`/causes/${tokenSlug}`} className="block group/link">
+          <Link href={`/causes/${token_symbol}`} className="block group/link">
             <h3 className="font-[SF-Pro-Rounded] font-bold text-xl line-clamp-1 group-hover/link:text-[#fbd03d] transition-colors">
               {name}
             </h3>
@@ -166,28 +162,25 @@ export function CauseCard({
         <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{description}</p>
         
         <div className="space-y-3">
-          {/* Progress Bar */}
-          <div className="relative">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Progress</span>
-              <span className="text-sm text-muted-foreground">
-                ${total_raised?.toLocaleString() || '0'} raised
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-[#fbd03d] to-[#f9c00c] h-2 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min((total_raised / 100000) * 100, 100)}%` }}
-              />
-            </div>
+          {/* Stats */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium">Total Raised</span>
+            <span className="text-sm font-semibold text-green-600">
+              ${(amount_donated || total_raised || 0).toLocaleString()}
+            </span>
           </div>
 
           {/* Token Info */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between border-t pt-3">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-green-600" />
               <span className="text-sm font-medium">Token: {token_name}</span>
             </div>
+            {current_price && (
+              <Badge variant="secondary" className="font-[SF-Pro-Rounded] font-medium">
+                ${current_price.toFixed(2)}/token
+              </Badge>
+            )}
           </div>
         </div>
       </CardContent>
@@ -197,7 +190,7 @@ export function CauseCard({
           asChild 
           className="w-full bg-[#fbd03d] hover:bg-[#fbd03d]/90 text-black font-[SF-Pro-Rounded] font-semibold group/btn"
         >
-          <Link href={`/causes/${tokenSlug}`}>
+          <Link href={`/causes/${token_symbol}`}>
             Support This Cause
             <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
           </Link>

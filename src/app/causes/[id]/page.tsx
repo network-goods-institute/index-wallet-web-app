@@ -5,7 +5,7 @@ import { DonationForm } from "@/components/donation-form"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Share2, Facebook, Twitter, Mail } from "lucide-react"
+import { ArrowLeft, Share2, Facebook, Mail } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -37,6 +37,9 @@ interface Cause {
   creator_email: string
   cause_image_url?: string
   token_image_url?: string
+  amount_donated: number
+  tokens_purchased: number
+  current_price: number
 }
 
 // Generate token color (reuse from cause-card)
@@ -275,11 +278,19 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                     <p className="text-sm text-muted-foreground">({cause.token_symbol})</p>
                   </div>
 
-                  <div className="py-4 border-y">
-                    <p className="text-sm text-muted-foreground mb-1">Total Raised</p>
-                    <p className="font-[SF-Pro-Rounded] font-black text-3xl text-[#049952]">
-                      ${cause.total_raised.toLocaleString()}
-                    </p>
+                  <div className="py-4 border-y space-y-3">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Total Raised</p>
+                      <p className="font-[SF-Pro-Rounded] font-black text-3xl text-[#049952]">
+                        ${(cause.amount_donated || 0).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Current token price</p>
+                      <p className="font-[SF-Pro-Rounded] font-semibold text-lg">
+                        ${(cause.current_price || 1.0).toFixed(2)}/token
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -306,6 +317,8 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                     causeId={cause._id.$oid} 
                     walletAddress={walletAddress} 
                     causeName={cause.name}
+                    currentPrice={cause.current_price || 1.0}
+                    tokenSymbol={cause.token_symbol}
                   />
                 ) : (
                   <Button 
@@ -330,7 +343,9 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                     <Facebook className="h-4 w-4" />
                   </Button>
                   <Button variant="outline" size="sm" className="font-[SF-Pro-Rounded]">
-                    <Twitter className="h-4 w-4" />
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
                   </Button>
                   <Button variant="outline" size="sm" className="font-[SF-Pro-Rounded]">
                     <Mail className="h-4 w-4" />

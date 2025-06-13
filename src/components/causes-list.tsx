@@ -27,6 +27,9 @@ interface Cause {
     $date: Date
   }
   creator_email: string
+  amount_donated?: number
+  tokens_purchased?: number
+  current_price?: number
 }
 
 export function CausesList() {

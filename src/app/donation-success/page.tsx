@@ -10,6 +10,7 @@ import confetti from "canvas-confetti"
 interface DonationInfo {
   causeId: string
   causeName?: string
+  tokenSymbol?: string
   amount: number
   sessionId: string
 }
@@ -53,7 +54,7 @@ export default function DonationSuccessPage() {
     : "I just made a donation to support a great cause!"
 
   const shareUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/causes/${donationInfo?.causeId}`
+    ? `${window.location.origin}/causes/${donationInfo?.tokenSymbol || donationInfo?.causeId}`
     : ''
 
   const handleShare = (platform: string) => {
@@ -121,7 +122,7 @@ export default function DonationSuccessPage() {
             </div>
           ) : (
             <p className="text-muted-foreground">
-              Your donation was successful! You should receive a confirmation email shortly.
+              Your donation was successful!
             </p>
           )}
         </CardContent>
@@ -188,7 +189,7 @@ export default function DonationSuccessPage() {
         {donationInfo && (
           <Button 
             className="flex-1" 
-            onClick={() => router.push(`/causes/${donationInfo.causeId}`)}
+            onClick={() => router.push(`/causes/${donationInfo.tokenSymbol || donationInfo.causeId}`)}
           >
             View Cause
             <ArrowRight className="h-4 w-4 ml-2" />

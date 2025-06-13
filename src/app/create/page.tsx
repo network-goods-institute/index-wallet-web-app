@@ -1,4 +1,4 @@
-import { CreateCauseForm } from "@/components/create-cause-form"
+import { CreateCauseFormEnhanced } from "@/components/create-cause-form-enhanced"
 
 export default function CreateCausePage() {
   return (
@@ -8,7 +8,7 @@ export default function CreateCausePage() {
           <h1 className="text-3xl font-bold tracking-tight">Create a Cause</h1>
           <p className="text-muted-foreground">Share your mission with the world and start raising funds</p>
         </div>
-        <CreateCauseForm />
+        <CreateCauseFormEnhanced />
       </div>
     </div>
   )

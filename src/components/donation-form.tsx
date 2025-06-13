@@ -11,11 +11,13 @@ interface DonationFormProps {
   causeId: string
   walletAddress: string
   causeName?: string
+  currentPrice?: number
+  tokenSymbol?: string
 }
 
 const PRESET_AMOUNTS = [10, 25, 50, 100]
 
-export function DonationForm({ causeId, walletAddress, causeName }: DonationFormProps) {
+export function DonationForm({ causeId, walletAddress, causeName, currentPrice = 1.0, tokenSymbol }: DonationFormProps) {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState("")
   const [isCustom, setIsCustom] = useState(false)
@@ -64,8 +66,8 @@ export function DonationForm({ causeId, walletAddress, causeName }: DonationForm
       return false
     }
     
-    if (amountCents > 999999) {
-      setError("Maximum donation amount is $9,999.99")
+    if (amountCents > 20000) {
+      setError("Maximum donation amount is $200.00")
       return false
     }
     
@@ -102,6 +104,7 @@ export function DonationForm({ causeId, walletAddress, causeName }: DonationForm
       sessionStorage.setItem("pendingDonation", JSON.stringify({
         causeId,
         causeName,
+        tokenSymbol,
         amount: getAmountInCents() / 100,
         sessionId: data.session_id
       }))
@@ -121,6 +124,17 @@ export function DonationForm({ causeId, walletAddress, causeName }: DonationForm
     : selectedAmount 
     ? `$${selectedAmount}` 
     : "Select amount"
+
+  const calculateExpectedTokens = () => {
+    const amountCents = getAmountInCents()
+    if (!amountCents) return 0
+    
+    // User donates X, platform takes 5% fee, so 95% goes to cause
+    // From that 95%, another 5% is taken as token fee
+    // So user gets 90% of their donation converted to tokens
+    const amountForTokens = (amountCents * 0.90) / 100
+    return amountForTokens / currentPrice
+  }
 
   return (
     <div className="space-y-4">
@@ -170,7 +184,7 @@ export function DonationForm({ causeId, walletAddress, causeName }: DonationForm
         
         {/* Min/max info */}
         <p className="text-xs text-muted-foreground mt-1">
-          Min: $1.00 • Max: $9,999.99
+          Min: $1.00 • Max: $200.00
         </p>
       </div>
 
@@ -199,11 +213,35 @@ export function DonationForm({ causeId, walletAddress, causeName }: DonationForm
         )}
       </Button>
 
-      {/* Fee info */}
+      {/* Fee info and token preview */}
       {getAmountInCents() > 0 && (
-        <p className="text-xs text-center text-muted-foreground">
-          Platform fee: ${(getAmountInCents() * 0.05 / 100).toFixed(2)} (5%)
-        </p>
+        <div className="space-y-3">
+          <div className="border rounded-lg p-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Donation amount</span>
+              <span className="font-medium">${(getAmountInCents() / 100).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Platform fee (5%)</span>
+              <span className="font-medium text-muted-foreground">-${(getAmountInCents() * 0.05 / 100).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Token fee (5%)</span>
+              <span className="font-medium text-muted-foreground">-${(getAmountInCents() * 0.05 / 100).toFixed(2)}</span>
+            </div>
+            <div className="border-t pt-2 mt-2 space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">You'll receive</span>
+                <span className="font-[SF-Pro-Rounded] font-bold text-[#049952]">
+                  ~{calculateExpectedTokens().toFixed(2)} tokens
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">at ${currentPrice.toFixed(2)} per token</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

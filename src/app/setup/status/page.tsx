@@ -10,9 +10,14 @@ import { Loader2 } from "lucide-react"
 import confetti from "canvas-confetti"
 
 interface DraftStatus {
-  status: "pending" | "complete" | "incomplete"
-  causeId?: string
-  causeToken?: string
+  status: "pending" | "complete" | "incomplete" | "draft" | "not_found" | "error"
+  cause_id?: string
+  cause_symbol?: string
+  draft?: {
+    name: string
+    token_symbol: string
+  }
+  onboarding_url?: string
   retryUrl?: string
   message?: string
 }
@@ -83,9 +88,9 @@ export default function SetupStatusPage() {
     }
   }, [status, pollCount, checkStatus])
 
-  const progressSteps = [
-    { label: "Cause Details", status: "complete" as const },
-    { label: "Payment Setup", status: status === "complete" ? "complete" : "current" as const }
+  const progressSteps: Array<{ label: string; status: "complete" | "current" | "pending" }> = [
+    { label: "Cause Details", status: "complete" },
+    { label: "Payment Setup", status: status === "complete" ? "complete" : "current" }
   ]
 
   if (status === "checking") {
@@ -188,10 +193,10 @@ export default function SetupStatusPage() {
                 </p>
               </div>
               <div className="flex justify-center">
-                {draftData?.retryUrl ? (
+                {(draftData?.retryUrl || draftData?.onboarding_url) ? (
                   <Button 
                     size="lg"
-                    onClick={() => window.location.href = draftData.retryUrl!}
+                    onClick={() => window.location.href = (draftData.retryUrl || draftData.onboarding_url)!}
                   >
                     Complete Payment Setup
                   </Button>
@@ -229,11 +234,11 @@ export default function SetupStatusPage() {
                 <p className="text-muted-foreground text-center">
                   Your payment setup is complete. You can now start receiving donations!
                 </p>
-                {draftData && (draftData.causeToken || draftData.causeId) && (
+                {draftData && (draftData.cause_symbol || draftData.cause_id) && (
                   <Button 
                     size="lg"
                     onClick={() => {
-                      const identifier = draftData.causeToken || draftData.causeId
+                      const identifier = draftData.cause_symbol || draftData.cause_id
                       router.push(`/causes/${identifier}`)
                     }}
                   >

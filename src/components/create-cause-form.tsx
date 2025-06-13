@@ -135,10 +135,10 @@ export function CreateCauseForm() {
           setTimeout(() => {
             window.location.href = data.stripe_url;
           }, 1500);
-        } else if (data.causeId || data.cause_id) {
-          // Legacy flow - direct cause creation
-          const causeToken = data.causeToken || data.cause_token || data.token || data.causeId || data.cause_id;
-          router.push(`/causes/${causeToken}`);
+        } else if (data.token_symbol || data.cause_symbol || data.causeId || data.cause_id) {
+          // Direct cause creation
+          const identifier = data.token_symbol || data.cause_symbol || data.causeId || data.cause_id;
+          router.push(`/causes/${identifier}`);
         } else if (data.id && data.token) {
           // Another possible format
           router.push(`/causes/${data.token}`);

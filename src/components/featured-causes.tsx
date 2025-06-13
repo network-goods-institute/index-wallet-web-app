@@ -27,6 +27,9 @@ interface Cause {
   updated_at: {
     $date: Date
   }
+  amount_donated?: number
+  tokens_purchased?: number
+  current_price?: number
 }
 
 export function FeaturedCauses() {

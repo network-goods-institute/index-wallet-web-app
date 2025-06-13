@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const draftId = params.id
+    const { id: draftId } = await params
     
     if (!draftId) {
       return NextResponse.json(
@@ -40,13 +40,13 @@ export async function GET(
 
     const data = await response.json()
     
-    // Transform the response to match our expected format
-    // Include both causeId and causeToken to support different backend responses
+    // Pass through the backend response as-is to maintain compatibility
     return NextResponse.json({
-      status: data.status || 'pending',
-      causeId: data.causeId || data.cause_id,
-      causeToken: data.cause_symbol, 
-      retryUrl: data.retryUrl || data.retry_url || data.onboarding_url,
+      status: data.status,
+      draft: data.draft,
+      onboarding_url: data.onboarding_url,
+      cause_id: data.cause_id,
+      cause_symbol: data.cause_symbol,
       message: data.message
     })
   } catch (error) {

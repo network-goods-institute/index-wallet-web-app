@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       throw new Error('API_URL environment variable is not set');
     }
 
-    const response = await fetch(`${apiUrl}/causes/by-token/${id}`, {
+    const response = await fetch(`${apiUrl}/causes/by-symbol/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
