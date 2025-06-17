@@ -133,6 +133,9 @@ export function DonationForm({ causeId, walletAddress, causeName, currentPrice =
     // From that 95%, another 5% is taken as token fee
     // So user gets 90% of their donation converted to tokens
     const amountForTokens = (amountCents * 0.90) / 100
+    
+    // Backend uses 100 units = $1, but we show 1 token = $1 in UI
+    // So we calculate based on the current price without additional conversion
     return amountForTokens / currentPrice
   }
 
@@ -233,7 +236,7 @@ export function DonationForm({ causeId, walletAddress, causeName, currentPrice =
               <div className="flex justify-between text-sm">
                 <span className="font-medium">You'll receive</span>
                 <span className="font-[SF-Pro-Rounded] font-bold text-[#049952]">
-                  ~{calculateExpectedTokens().toFixed(2)} tokens
+                  ~{Math.round(calculateExpectedTokens())} tokens
                 </span>
               </div>
               <div className="flex justify-between text-xs">

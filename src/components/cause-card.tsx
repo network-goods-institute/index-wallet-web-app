@@ -31,6 +31,7 @@ interface CauseCardProps {
   amount_donated?: number
   tokens_purchased?: number
   current_price?: number
+  cause_image_url?: string
 }
 
 // Generate a consistent color based on token name
@@ -84,6 +85,7 @@ export function CauseCard({
   total_raised,
   current_price,
   amount_donated,
+  cause_image_url,
 }: CauseCardProps) {
   const tokenColors = getTokenColor(token_name)
   const tokenImage = getTokenImage(token_image_url, token_symbol)
@@ -93,7 +95,7 @@ export function CauseCard({
       {/* Image Section */}
       <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
         <Image
-          src={getPlaceholderImage(name)}
+          src={cause_image_url || getPlaceholderImage(name)}
           alt={name}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-300"
@@ -166,7 +168,7 @@ export function CauseCard({
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Total Raised</span>
             <span className="text-sm font-semibold text-green-600">
-              ${(amount_donated || total_raised || 0).toLocaleString()}
+              ${(amount_donated || total_raised || 0).toFixed(2)}
             </span>
           </div>
 
@@ -178,7 +180,7 @@ export function CauseCard({
             </div>
             {current_price && (
               <Badge variant="secondary" className="font-[SF-Pro-Rounded] font-medium">
-                ${current_price.toFixed(2)}/token
+                ${(current_price * 100).toFixed(2)}/token
               </Badge>
             )}
           </div>

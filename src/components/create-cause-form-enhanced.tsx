@@ -36,11 +36,12 @@ interface SavedDraft {
 }
 
 interface DraftStatusResponse {
-  status: 'draft' | 'incomplete' | 'pending' | 'complete' | 'not_found' | 'error'
+  status: 'draft' | 'incomplete' | 'pending' | 'complete' | 'not_found' | 'error' | 'processing'
   draft?: any
   onboarding_url?: string
   cause_id?: string
   cause_symbol?: string
+  message?: string
 }
 
 export function CreateCauseFormEnhanced() {
@@ -140,10 +141,13 @@ export function CreateCauseFormEnhanced() {
           break
 
         case 'pending':
+        case 'processing':
           setDraftBanner({
             type: 'info',
-            message: `Your cause${status.draft?.name ? ` '${status.draft.name}'` : ''} (${status.cause_symbol}) is being processed...`,
+            message: status.message || `Your cause${status.draft?.name ? ` '${status.draft.name}'` : ''} (${status.cause_symbol || status.draft?.token_symbol || ''}) is being set up...`,
           })
+          // Poll for updates
+          setTimeout(() => checkExistingDraft(), 5000)
           break
 
         case 'incomplete':

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { motion } from "framer-motion"
+import { getCauseStatusDisplay, isDonationEnabled } from "@/lib/status-utils"
 
 interface Cause {
   _id: {
@@ -183,18 +184,28 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
           >
             {/* Status Badges */}
             <div className="flex items-center gap-2">
-              <Badge 
-                variant="outline" 
-                className="font-[SF-Pro-Rounded] font-semibold"
-              >
-                {cause.status}
-              </Badge>
-              <Badge 
-                variant={cause.is_active ? "default" : "secondary"}
-                className="font-[SF-Pro-Rounded] font-semibold"
-              >
-                {cause.is_active ? 'Active' : 'Inactive'}
-              </Badge>
+              {(() => {
+                const statusDisplay = getCauseStatusDisplay(cause.status)
+                if (statusDisplay.showToPublic || cause.status !== "Active") {
+                  return (
+                    <Badge 
+                      variant={statusDisplay.variant} 
+                      className="font-[SF-Pro-Rounded] font-semibold"
+                    >
+                      {statusDisplay.label}
+                    </Badge>
+                  )
+                }
+                return null
+              })()}
+              {!isDonationEnabled(cause.status, cause.is_active) && (
+                <Badge 
+                  variant="secondary"
+                  className="font-[SF-Pro-Rounded] font-semibold"
+                >
+                  Donations Paused
+                </Badge>
+              )}
             </div>
 
             {/* About Section */}
@@ -214,7 +225,6 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
               <CardContent className="p-6">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src="/placeholder.svg" alt={cause.creator_email} />
                     <AvatarFallback className="bg-[#fbd03d] text-black font-[SF-Pro-Rounded] font-semibold">
                       {cause.creator_email.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
@@ -282,51 +292,72 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Total Raised</p>
                       <p className="font-[SF-Pro-Rounded] font-black text-3xl text-[#049952]">
-                        ${(cause.amount_donated || 0).toLocaleString()}
+                        ${(cause.amount_donated || 0).toFixed(2)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Current token price</p>
                       <p className="font-[SF-Pro-Rounded] font-semibold text-lg">
-                        ${(cause.current_price || 1.0).toFixed(2)}/token
+                        ${((cause.current_price || 0.01) * 100).toFixed(2)}/token
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Wallet Input */}
-                <div className="space-y-2">
-                  <label className="font-[SF-Pro-Rounded] font-semibold text-sm">
-                    Your Wallet Address
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Find in your wallet app"
-                    value={walletAddress}
-                    onChange={(e) => setWalletAddress(e.target.value)}
-                    className="font-mono"
-                  />
-                  {!walletAddress && (
-                    <p className="text-sm text-destructive">Required to receive tokens</p>
-                  )}
-                </div>
+                {isDonationEnabled(cause.status, cause.is_active) ? (
+                  <>
+                    {/* Wallet Input */}
+                    <div className="space-y-2">
+                      <label className="font-[SF-Pro-Rounded] font-semibold text-sm">
+                        Your Wallet Address
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="Find in your wallet app"
+                        value={walletAddress}
+                        onChange={(e) => setWalletAddress(e.target.value)}
+                        className="font-mono"
+                      />
+                      {!walletAddress && (
+                        <p className="text-sm text-destructive">Required to receive tokens</p>
+                      )}
+                    </div>
 
-                {/* Donation Form */}
-                {walletAddress ? (
-                  <DonationForm 
-                    causeId={cause._id.$oid} 
-                    walletAddress={walletAddress} 
-                    causeName={cause.name}
-                    currentPrice={cause.current_price || 1.0}
-                    tokenSymbol={cause.token_symbol}
-                  />
+                    {/* Donation Form */}
+                    {walletAddress ? (
+                      <DonationForm 
+                        causeId={cause._id.$oid} 
+                        walletAddress={walletAddress} 
+                        causeName={cause.name}
+                        currentPrice={(cause.current_price || 0.01) * 100}
+                        tokenSymbol={cause.token_symbol}
+                      />
+                    ) : (
+                      <Button 
+                        disabled 
+                        className="w-full font-[SF-Pro-Rounded] font-semibold"
+                      >
+                        Enter wallet address to donate
+                      </Button>
+                    )}
+                  </>
                 ) : (
-                  <Button 
-                    disabled 
-                    className="w-full font-[SF-Pro-Rounded] font-semibold"
-                  >
-                    Enter wallet address to donate
-                  </Button>
+                  <div className="text-center space-y-4">
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <p className="text-sm text-amber-800">
+                        {cause.status === "Failed" 
+                          ? "This cause encountered an issue during setup. Please contact support."
+                          : "This cause is being set up and will be ready for donations soon."}
+                      </p>
+                    </div>
+                    <Button 
+                      disabled 
+                      variant="secondary"
+                      className="w-full font-[SF-Pro-Rounded] font-semibold"
+                    >
+                      Donations Not Available
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>

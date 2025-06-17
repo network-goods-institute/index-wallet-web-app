@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback } from "react"
-import { Upload, X, Image } from "lucide-react"
+import { Upload, X, Image, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -186,8 +186,11 @@ export function ImageUpload({
               <X className="h-4 w-4" />
             </Button>
             {isUploading && (
-              <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
-                <div className="text-sm text-muted-foreground">Uploading...</div>
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg">
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">Uploading...</span>
+                </div>
               </div>
             )}
           </div>

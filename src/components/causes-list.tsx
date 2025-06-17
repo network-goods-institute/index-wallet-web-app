@@ -30,6 +30,8 @@ interface Cause {
   amount_donated?: number
   tokens_purchased?: number
   current_price?: number
+  cause_image_url?: string
+  token_image_url?: string
 }
 
 export function CausesList() {
