@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion, useScroll, useTransform } from "framer-motion"
 import Image from "next/image"
@@ -10,6 +10,15 @@ import { Menu, X } from "lucide-react"
 export function IndexHeader() {
   const { scrollY } = useScroll()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+
+  // Show header after a short delay to allow fonts to load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true)
+    }, 100) // 100ms delay
+    return () => clearTimeout(timer)
+  }, [])
 
   // Animate header position from 24px to 10px when scrolling down
   const topPosition = useTransform(scrollY, [0, 100], [24, 10])
@@ -22,13 +31,15 @@ export function IndexHeader() {
           x: "-50%",
           top: topPosition,
           width: "min(768px, 90vw)",
+          opacity: isVisible ? 1 : 0,
         }}
+        animate={{ opacity: isVisible ? 1 : 0 }}
         transition={{ ease: "backInOut", duration: 0.5 }}
       >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 no-underline">
           <Image src="/index_logo.svg" alt="Index Wallets Logo" width={28} height={24} />
-          <h2 className="font-[SF-Pro-Rounded] font-bold text-lg leading-[21.48px] text-[#0c0a09]" style={{ letterSpacing: "-0.03em" }}>
+          <h2 className="font-[SF-Pro-Rounded] font-bold text-lg leading-[21.48px] text-[#0c0a09] whitespace-nowrap" style={{ letterSpacing: "-0.03em" }}>
             Index Wallets
           </h2>
         </Link>
@@ -36,16 +47,16 @@ export function IndexHeader() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           <NavLink href="/causes">
-            <span>Explore Public Goods</span>
-            <span className="hover-text">Explore Public Goods</span>
+            <span className="whitespace-nowrap">Explore Public Goods</span>
+            <span className="hover-text whitespace-nowrap">Explore Public Goods</span>
           </NavLink>
           <NavLink href="/create">
-            <span>Create Public Good</span>
-            <span className="hover-text">Create Public Good</span>
+            <span className="whitespace-nowrap">Create Public Good</span>
+            <span className="hover-text whitespace-nowrap">Create Public Good</span>
           </NavLink>
           <NavLink href="/about">
-            <span>About Us</span>
-            <span className="hover-text">About Us</span>
+            <span className="whitespace-nowrap">About Us</span>
+            <span className="hover-text whitespace-nowrap">About Us</span>
           </NavLink>
         </nav>
 
@@ -114,7 +125,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="relative overflow-hidden inline-block font-[SF-Pro-Rounded] font-medium text-base leading-[19.09px] text-[#0c0a09] no-underline transition-transform duration-[400ms] hover:scale-[1.05]"
+      className="relative overflow-hidden inline-block font-[SF-Pro-Rounded] font-medium text-base leading-[19.09px] text-[#0c0a09] no-underline transition-transform duration-[400ms] hover:scale-[1.05] whitespace-nowrap"
       style={{ letterSpacing: "-0.03em" }}
     >
       {children}
@@ -128,7 +139,7 @@ function MobileNavLink({ href, onClick, children }: { href: string; onClick: () 
     <Link
       href={href}
       onClick={onClick}
-      className="font-[SF-Pro-Rounded] font-medium text-base leading-[19.09px] text-[#0c0a09] no-underline py-2"
+      className="font-[SF-Pro-Rounded] font-medium text-base leading-[19.09px] text-[#0c0a09] no-underline py-2 whitespace-nowrap"
       style={{ letterSpacing: "-0.03em" }}
     >
       {children}

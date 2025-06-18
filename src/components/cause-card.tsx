@@ -176,7 +176,7 @@ export function CauseCard({
           <div className="flex items-center justify-between border-t pt-3">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium">Token: {token_name}</span>
+              <span className="text-sm font-medium">Cause: {token_name}</span>
             </div>
             {current_price && (
               <Badge variant="secondary" className="font-[SF-Pro-Rounded] font-medium">
