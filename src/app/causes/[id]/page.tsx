@@ -296,9 +296,9 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Current token price</p>
+                      <p className="text-sm text-muted-foreground">Current receipt price</p>
                       <p className="font-[SF-Pro-Rounded] font-semibold text-lg">
-                        ${((cause.current_price || 0.01) * 100).toFixed(2)}/token
+                        ${(cause.current_price * 100).toFixed(2)}/receipt
                       </p>
                     </div>
                   </div>
@@ -319,7 +319,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                         className="font-mono"
                       />
                       {!walletAddress && (
-                        <p className="text-sm text-destructive">Required to receive tokens</p>
+                        <p className="text-sm text-destructive">Required to receive receipts</p>
                       )}
                     </div>
 
@@ -329,8 +329,10 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
                         causeId={cause._id.$oid} 
                         walletAddress={walletAddress} 
                         causeName={cause.name}
-                        currentPrice={(cause.current_price || 0.01) * 100}
+                        currentPrice={cause.current_price}
                         tokenSymbol={cause.token_symbol}
+                        amountDonated={cause.amount_donated}
+                        tokensPurchased={cause.tokens_purchased}
                       />
                     ) : (
                       <Button 

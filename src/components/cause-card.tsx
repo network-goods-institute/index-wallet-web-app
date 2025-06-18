@@ -180,7 +180,7 @@ export function CauseCard({
             </div>
             {current_price && (
               <Badge variant="secondary" className="font-[SF-Pro-Rounded] font-medium">
-                ${(current_price * 100).toFixed(2)}/token
+                ${(current_price * 100).toFixed(2)}/receipt
               </Badge>
             )}
           </div>

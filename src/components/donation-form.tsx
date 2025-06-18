@@ -13,11 +13,13 @@ interface DonationFormProps {
   causeName?: string
   currentPrice?: number
   tokenSymbol?: string
+  amountDonated?: number
+  tokensPurchased?: number
 }
 
 const PRESET_AMOUNTS = [10, 25, 50, 100]
 
-export function DonationForm({ causeId, walletAddress, causeName, currentPrice = 1.0, tokenSymbol }: DonationFormProps) {
+export function DonationForm({ causeId, walletAddress, causeName, currentPrice = 0.01, tokenSymbol }: DonationFormProps) {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState("")
   const [isCustom, setIsCustom] = useState(false)
@@ -106,7 +108,11 @@ export function DonationForm({ causeId, walletAddress, causeName, currentPrice =
         causeName,
         tokenSymbol,
         amount: getAmountInCents() / 100,
-        sessionId: data.session_id
+        sessionId: data.session_id,
+        currentPrice,
+        expectedReceipts: calculateExpectedReceipts(),
+        platformReceipts: getPlatformReceiptShare(),
+        userReceipts: calculateExpectedReceipts()
       }))
       
       // Redirect to Stripe checkout
@@ -125,18 +131,71 @@ export function DonationForm({ causeId, walletAddress, causeName, currentPrice =
     ? `$${selectedAmount}` 
     : "Select amount"
 
-  const calculateExpectedTokens = () => {
+  const calculateExpectedReceipts = () => {
     const amountCents = getAmountInCents()
     if (!amountCents) return 0
     
-    // User donates X, platform takes 5% fee, so 95% goes to cause
-    // From that 95%, another 5% is taken as token fee
-    // So user gets 90% of their donation converted to tokens
-    const amountForTokens = (amountCents * 0.90) / 100
+    // Step 1: Platform takes 5% cash fee upfront
+    // So only 95% of donation goes to receipt purchase
+    const amountForReceipts = (amountCents * 0.95) / 100
     
-    // Backend uses 100 units = $1, but we show 1 token = $1 in UI
-    // So we calculate based on the current price without additional conversion
-    return amountForTokens / currentPrice
+    // Step 2: Calculate total receipts minted with price averaging
+    const totalReceiptsMinted = calculateTotalReceiptsMinted(amountForReceipts)
+    
+    // Step 3: User gets 94.74% of minted receipts
+    // Platform gets 5.26% of minted receipts
+    return totalReceiptsMinted * 0.9474
+  }
+
+  const calculateTotalReceiptsMinted = (amountInDollars: number) => {
+    const SLOPE = 0.0000001
+    
+    // Backend price is already in dollars (0.01 = $0.01)
+    const currentPriceInDollars = currentPrice
+    
+    // Estimate receipts at current price
+    const estimatedReceipts = amountInDollars / currentPriceInDollars
+    
+    // Calculate end price after buying those receipts
+    const endPriceInDollars = currentPriceInDollars + (SLOPE * estimatedReceipts)
+    
+    // Average price over the purchase range
+    const averagePriceInDollars = (currentPriceInDollars + endPriceInDollars) / 2
+    
+    // Calculate total receipts minted
+    return amountInDollars / averagePriceInDollars
+  }
+
+  const getPlatformFee = () => {
+    const amountCents = getAmountInCents()
+    return amountCents * 0.05 / 100 // 5% platform operations fee
+  }
+
+
+  const getPlatformReceiptShare = () => {
+    const amountCents = getAmountInCents()
+    if (!amountCents) return 0
+    
+    const amountForReceipts = (amountCents * 0.95) / 100
+    const totalReceiptsMinted = calculateTotalReceiptsMinted(amountForReceipts)
+    
+    // Platform gets 5.26% of total minted receipts
+    return totalReceiptsMinted * 0.0526
+  }
+
+  const getAveragePrice = () => {
+    const amountCents = getAmountInCents()
+    if (!amountCents) return currentPrice
+    
+    const amountForReceipts = (amountCents * 0.95) / 100
+    const SLOPE = 0.0000001
+    
+    // Calculate average price
+    const estimatedReceipts = amountForReceipts / currentPrice
+    const endPrice = currentPrice + (SLOPE * estimatedReceipts)
+    const averagePrice = (currentPrice + endPrice) / 2
+    
+    return averagePrice
   }
 
   return (
@@ -216,33 +275,51 @@ export function DonationForm({ causeId, walletAddress, causeName, currentPrice =
         )}
       </Button>
 
-      {/* Fee info and token preview */}
+      {/* Fee info and receipt preview */}
       {getAmountInCents() > 0 && (
-        <div className="space-y-3">
-          <div className="border rounded-lg p-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Donation amount</span>
-              <span className="font-medium">${(getAmountInCents() / 100).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Platform fee (5%)</span>
-              <span className="font-medium text-muted-foreground">-${(getAmountInCents() * 0.05 / 100).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Token fee (5%)</span>
-              <span className="font-medium text-muted-foreground">-${(getAmountInCents() * 0.05 / 100).toFixed(2)}</span>
-            </div>
-            <div className="border-t pt-2 mt-2 space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium">You'll receive</span>
-                <span className="font-[SF-Pro-Rounded] font-bold text-[#049952]">
-                  ~{Math.round(calculateExpectedTokens())} tokens
-                </span>
+        <div className="border rounded-lg p-4 space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Donation amount</span>
+            <span className="font-medium">${(getAmountInCents() / 100).toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Platform fee (5%)</span>
+            <span className="font-medium text-muted-foreground">-${getPlatformFee().toFixed(2)}</span>
+          </div>
+          <div className="border-t pt-2 mt-2 space-y-2">
+            <div className="flex justify-between items-baseline">
+              <div>
+                <p className="text-sm font-medium">You&apos;ll receive</p>
+                <p className="text-xs text-muted-foreground">at ~${(getAveragePrice() * 100).toFixed(2)} avg per receipt</p>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">at ${currentPrice.toFixed(2)} per token</span>
+              <div className="text-right">
+                <p className="font-[SF-Pro-Rounded] font-bold text-[#049952] text-lg">
+                  {(calculateExpectedReceipts() / 100).toFixed(2)} {tokenSymbol}
+                </p>
               </div>
             </div>
+            <div className="text-xs text-muted-foreground">
+              <div className="flex justify-between">
+                <span>Total receipts minted</span>
+                <span>{(calculateExpectedReceipts() / 0.9474 / 100).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Platform share (5%)</span>
+                <span>{(getPlatformReceiptShare() / 100).toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Platform fee explanation */}
+          <div className="text-xs text-muted-foreground space-y-1 mt-3">
+            <p className="flex items-start">
+              <span className="mr-1">•</span>
+              <span>Platform takes 5% cash + 5% of receipts (10% total)</span>
+            </p>
+            <p className="flex items-start">
+              <span className="mr-1">•</span>
+              <span>Receipt price increases with each purchase</span>
+            </p>
           </div>
         </div>
       )}

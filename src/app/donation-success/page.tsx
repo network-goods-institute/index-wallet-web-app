@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, Home, Share2, AlertCircle, ArrowRight, Heart } from "lucide-react"
+import { CheckCircle2, Home, Share2, ArrowRight } from "lucide-react"
 import confetti from "canvas-confetti"
 
 interface DonationInfo {
@@ -13,6 +13,10 @@ interface DonationInfo {
   tokenSymbol?: string
   amount: number
   sessionId: string
+  currentPrice?: number
+  expectedReceipts?: number
+  platformReceipts?: number
+  userReceipts?: number
 }
 
 export default function DonationSuccessPage() {
@@ -76,83 +80,80 @@ export default function DonationSuccessPage() {
   return (
     <div className="container max-w-2xl py-30">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-          <CheckCircle2 className="h-10 w-10 text-green-600" />
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+          <CheckCircle2 className="h-8 w-8 text-green-600" />
         </div>
-        <h1 className="text-4xl font-bold mb-2">Thank You! 🎉</h1>
-        <p className="text-xl text-muted-foreground">
+        <h1 className="text-3xl font-bold mb-2">Thank You!</h1>
+        <p className="text-lg text-muted-foreground">
           Your donation has been successfully processed
         </p>
       </div>
 
       <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-red-500" />
-            Donation Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {donationInfo ? (
-            <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-muted-foreground">Amount</span>
-                <span className="font-bold text-lg">${donationInfo.amount.toFixed(2)}</span>
+            <div className="space-y-4">
+              <div className="text-center pb-4 border-b">
+                <p className="text-3xl font-[SF-Pro-Rounded] font-bold">
+                  ${donationInfo.amount.toFixed(2)}
+                </p>
+                {donationInfo.causeName && (
+                  <p className="text-muted-foreground mt-1">donated to {donationInfo.causeName}</p>
+                )}
               </div>
-              {donationInfo.causeName && (
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-muted-foreground">Cause</span>
-                  <span className="font-medium">{donationInfo.causeName}</span>
+              
+              {donationInfo.userReceipts && (
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Receipts received</span>
+                    <span className="font-[SF-Pro-Rounded] font-bold text-[#049952]">
+                      {(donationInfo.userReceipts / 100).toFixed(2)} {donationInfo.tokenSymbol}
+                    </span>
+                  </div>
+                  {donationInfo.currentPrice && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Price per receipt</span>
+                      <span className="text-sm">
+                        ${(donationInfo.currentPrice * 100).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
-              <div className="flex justify-between items-center py-2">
-                <span className="text-muted-foreground">Platform Fee (5%)</span>
-                <span className="text-sm">${(donationInfo.amount * 0.05).toFixed(2)}</span>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                <div className="flex items-start space-x-3">
-                  <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-blue-800">
-                      Check your wallet for the corresponding amount of receipts for your donation. 
-                    </p>
-                  </div>
-                </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-blue-800">
+                  Your receipts will appear in your wallet shortly
+                </p>
               </div>
             </div>
           ) : (
-            <p className="text-muted-foreground">
+            <p className="text-center text-muted-foreground">
               Your donation was successful!
             </p>
           )}
         </CardContent>
       </Card>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Spread the Word</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Help this cause reach more people by sharing your donation
-          </p>
-          
-          {!showShareOptions ? (
-            <Button 
-              onClick={() => setShowShareOptions(true)} 
-              variant="outline" 
-              className="w-full"
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share Your Donation
-            </Button>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
+      {/* Share section */}
+      <div className="mb-8">
+        {!showShareOptions ? (
+          <Button 
+            onClick={() => setShowShareOptions(true)} 
+            variant="outline" 
+            className="w-full"
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            Share Your Donation
+          </Button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-center text-muted-foreground">Share on</p>
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleShare('twitter')}
-                className="w-full"
               >
                 Twitter/X
               </Button>
@@ -160,7 +161,6 @@ export default function DonationSuccessPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleShare('facebook')}
-                className="w-full"
               >
                 Facebook
               </Button>
@@ -168,7 +168,6 @@ export default function DonationSuccessPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleShare('linkedin')}
-                className="w-full"
               >
                 LinkedIn
               </Button>
@@ -176,14 +175,13 @@ export default function DonationSuccessPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleShare('email')}
-                className="w-full"
               >
                 Email
               </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
         {donationInfo && (
