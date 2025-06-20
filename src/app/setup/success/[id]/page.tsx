@@ -99,7 +99,7 @@ export default function CauseSuccessPage() {
         </div>
         <h1 className="text-4xl font-bold mb-2">Congratulations! 🎉</h1>
         <p className="text-xl text-muted-foreground">
-          Your cause "{cause.name}" is now live and ready to receive donations
+          Your cause &quot;{cause.name}&quot; is now live and ready to receive donations
         </p>
       </div>
 
@@ -160,7 +160,7 @@ export default function CauseSuccessPage() {
               <div>
                 <h4 className="font-medium mb-1">Save Your Stripe Login</h4>
                 <p className="text-sm text-muted-foreground">
-                  Keep your Stripe account credentials safe. You'll need them to access donation data and manage your payouts.
+                  Keep your Stripe account credentials safe. You&apos;ll need them to access donation data and manage your payouts.
                 </p>
               </div>
             </div>

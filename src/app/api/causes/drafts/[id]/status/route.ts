@@ -49,8 +49,7 @@ export async function GET(
       cause_symbol: data.cause_symbol,
       message: data.message
     })
-  } catch (error) {
-    console.error('Error checking draft status:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to check draft status' },
       { status: 500 }

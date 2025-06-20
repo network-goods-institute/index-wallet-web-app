@@ -44,8 +44,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       drafts: data.drafts || []
     })
-  } catch (error) {
-    console.error('Error finding drafts:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to find drafts' },
       { status: 500 }

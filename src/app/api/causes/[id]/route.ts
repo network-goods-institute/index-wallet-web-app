@@ -11,10 +11,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) {
-      throw new Error('API_URL environment variable is not set');
-    }
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
 
     const response = await fetch(`${apiUrl}/causes/by-symbol/${id}`, {
       method: 'GET',
@@ -30,8 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error fetching cause:', error);
+  } catch {
     return NextResponse.json(
       { 
         error: 'internal_server_error',

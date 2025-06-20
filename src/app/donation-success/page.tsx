@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,7 @@ interface DonationInfo {
   userReceipts?: number
 }
 
-export default function DonationSuccessPage() {
+function DonationSuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [donationInfo, setDonationInfo] = useState<DonationInfo | null>(null)
@@ -212,5 +212,19 @@ export default function DonationSuccessPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function DonationSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="container max-w-2xl py-30">
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    }>
+      <DonationSuccessContent />
+    </Suspense>
   )
 }

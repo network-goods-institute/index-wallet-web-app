@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ImageUpload } from "@/components/ui/image-upload"
 import { ProgressIndicator } from "@/components/ui/progress-indicator"
-import { AlertCircle, ShieldCheck } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 
 interface CauseFormData {
   name: string
@@ -171,7 +170,7 @@ export function CreateCauseForm() {
             <div className="flex-1">
               <h3 className="font-medium">Secure Two-Step Process</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                After submitting your cause details, you'll be redirected to Stripe's secure platform to set up payment processing. This ensures your donations are handled safely and compliantly.
+                After submitting your cause details, you&apos;ll be redirected to Stripe&apos;s secure platform to set up payment processing. This ensures your donations are handled safely and compliantly.
               </p>
             </div>
           </div>
@@ -296,7 +295,7 @@ export function CreateCauseForm() {
                   placeholder="Enter the full name of your token" 
                   required 
                 />
-                <p className="text-xs text-muted-foreground">Example: "Ocean Cleanup Token"</p>
+                <p className="text-xs text-muted-foreground">Example: &quot;Ocean Cleanup Token&quot;</p>
               </div>
 
               <div className="space-y-2">
@@ -309,7 +308,7 @@ export function CreateCauseForm() {
                   maxLength={5}
                   required 
                 />
-                <p className="text-xs text-muted-foreground">Example: "OCT" (usually 3-5 characters)</p>
+                <p className="text-xs text-muted-foreground">Example: &quot;OCT&quot; (usually 3-5 characters)</p>
               </div>
             </div>
           </div>

@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Production optimizations
+  poweredByHeader: false,
+  compress: true,
+  productionBrowserSourceMaps: false,
+  
+  // Strict mode for better error catching
+  reactStrictMode: true,
 };
 
 export default nextConfig;

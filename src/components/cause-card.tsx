@@ -49,7 +49,7 @@ function getTokenColor(tokenName: string): { bg: string; border: string } {
 }
 
 // Generate placeholder image based on cause name
-function getPlaceholderImage(_causeName: string): string {
+function getPlaceholderImage(): string {
   // You can replace this with actual token images when available
   const imageTypes = [
     "/images/banner_image.png", // Use existing banner as placeholder
@@ -95,7 +95,7 @@ export function CauseCard({
       {/* Image Section */}
       <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
         <Image
-          src={cause_image_url || getPlaceholderImage(name)}
+          src={cause_image_url || getPlaceholderImage()}
           alt={name}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-300"

@@ -2,7 +2,6 @@
 
 import { CauseCard } from "@/components/cause-card"
 import { useEffect, useState } from "react"
-import { use } from "react"
 
 interface Cause {
   _id: {
@@ -37,7 +36,6 @@ interface Cause {
 export function CausesList() {
   const [causes, setCauses] = useState<Cause[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchCauses() {
@@ -50,7 +48,6 @@ export function CausesList() {
         setCauses(data)
       } catch (error) {
         console.error('Error fetching causes:', error)
-        setError('Failed to fetch causes')
       } finally {
         setLoading(false)
       }
@@ -73,7 +70,6 @@ export function CausesList() {
         <CauseCard
           key={cause._id?.$oid}
           {...cause}
-          id={cause._id?.$oid}
         />
       ))}
     </div>

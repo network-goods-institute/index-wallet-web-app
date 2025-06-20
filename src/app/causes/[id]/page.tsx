@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { DonationForm } from "@/components/donation-form"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Share2, Facebook, Mail } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -57,17 +57,28 @@ function getTokenColor(tokenName: string): { bg: string; border: string } {
   return colors[index]
 }
 
-export default function CauseDetailPage({ params }: { params: { id: string } }) {
+export default function CauseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [cause, setCause] = useState<Cause | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [walletAddress, setWalletAddress] = useState<string>("")
+  const [causeId, setCauseId] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
+    async function getParams() {
+      const resolvedParams = await params;
+      setCauseId(resolvedParams.id);
+    }
+    getParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (!causeId) return;
+    
     async function fetchCause() {
       try {
-        const response = await fetch(`/api/causes/${params.id}`);
+        const response = await fetch(`/api/causes/${causeId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -83,7 +94,7 @@ export default function CauseDetailPage({ params }: { params: { id: string } }) 
     }
 
     fetchCause();
-  }, [params.id]);
+  }, [causeId]);
 
   if (loading) {
     return (

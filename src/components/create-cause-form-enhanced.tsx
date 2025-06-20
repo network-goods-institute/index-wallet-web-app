@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ImageUpload } from "@/components/ui/image-upload"
@@ -37,7 +36,17 @@ interface SavedDraft {
 
 interface DraftStatusResponse {
   status: 'draft' | 'incomplete' | 'pending' | 'complete' | 'not_found' | 'error' | 'processing'
-  draft?: any
+  draft?: {
+    name: string
+    token_symbol: string
+    organization: string
+    description: string
+    long_description: string
+    creator_email: string
+    token_name: string
+    cause_image_url?: string
+    token_image_url?: string
+  }
   onboarding_url?: string
   cause_id?: string
   cause_symbol?: string
@@ -48,7 +57,6 @@ export function CreateCauseFormEnhanced() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
-  const [showStripeButton, setShowStripeButton] = useState(false)
   const [stripeUrl, setStripeUrl] = useState("")
   const [isFormReadOnly, setIsFormReadOnly] = useState(false)
   const [draftBanner, setDraftBanner] = useState<{
@@ -78,7 +86,6 @@ export function CreateCauseFormEnhanced() {
     tokenName?: boolean
     tokenSymbol?: boolean
   }>({})
-  const [errorType, setErrorType] = useState<string | null>(null)
   
   // Real-time validation state
   const [fieldValidation, setFieldValidation] = useState<{
@@ -91,7 +98,7 @@ export function CreateCauseFormEnhanced() {
     tokenSymbol: { isValidating: false, isValid: true, message: null }
   })
 
-  const checkExistingDraft = async () => {
+  const checkExistingDraft = useCallback(async () => {
     // Check for new format first
     let savedDraft: SavedDraft | null = null
     const savedDraftStr = localStorage.getItem('causeDraft')
@@ -184,7 +191,7 @@ export function CreateCauseFormEnhanced() {
       localStorage.removeItem('causeDraft')
       localStorage.removeItem('currentDraftId')
     }
-  }
+  }, [])
 
   const resumeSetup = (status: DraftStatusResponse) => {
     if (status.draft) {
@@ -204,7 +211,6 @@ export function CreateCauseFormEnhanced() {
 
     if (status.onboarding_url) {
       setIsFormReadOnly(true)
-      setShowStripeButton(true)
       setStripeUrl(status.onboarding_url)
       
       // Scroll to bottom after a short delay to ensure DOM is updated
@@ -218,7 +224,6 @@ export function CreateCauseFormEnhanced() {
     localStorage.removeItem('causeDraft')
     localStorage.removeItem('currentDraftId') // Remove legacy key too
     setDraftBanner(null)
-    setShowStripeButton(false)
     setIsFormReadOnly(false)
     setFormData({
       name: "",
@@ -274,7 +279,7 @@ export function CreateCauseFormEnhanced() {
       let data
       try {
         data = JSON.parse(text)
-      } catch (parseError) {
+      } catch {
         console.error('Failed to parse JSON:', text)
         throw new Error('Invalid JSON response')
       }
@@ -301,10 +306,10 @@ export function CreateCauseFormEnhanced() {
   }
   
   // Custom debounce hook
-  const useDebounce = (callback: Function, delay: number) => {
+  const useDebounce = (callback: (...args: unknown[]) => void, delay: number) => {
     const timeoutRef = useRef<NodeJS.Timeout | null>(null)
     
-    const debouncedCallback = useCallback((...args: any[]) => {
+    const debouncedCallback = useCallback((...args: unknown[]) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }
@@ -318,13 +323,25 @@ export function CreateCauseFormEnhanced() {
   }
   
   // Debounced validation functions
-  const debouncedValidateName = useDebounce((value: string) => validateField('name', value), 500)
-  const debouncedValidateTokenName = useDebounce((value: string) => validateField('tokenName', value), 500)
-  const debouncedValidateTokenSymbol = useDebounce((value: string) => validateField('tokenSymbol', value), 500)
+  const debouncedValidateName = useDebounce((value: unknown) => {
+    if (typeof value === 'string') {
+      validateField('name', value)
+    }
+  }, 500)
+  const debouncedValidateTokenName = useDebounce((value: unknown) => {
+    if (typeof value === 'string') {
+      validateField('tokenName', value)
+    }
+  }, 500)
+  const debouncedValidateTokenSymbol = useDebounce((value: unknown) => {
+    if (typeof value === 'string') {
+      validateField('tokenSymbol', value)
+    }
+  }, 500)
 
   useEffect(() => {
     checkExistingDraft()
-  }, [])
+  }, [checkExistingDraft])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
@@ -365,7 +382,6 @@ export function CreateCauseFormEnhanced() {
     setErrors([])
     setSuccessMessage('')
     setFieldErrors({})
-    setErrorType(null)
     
     const { name, organization, description, creator_email, token_symbol, token_name, long_description, cause_image_url, token_image_url } = formData
     if (!name || !organization || !description || !creator_email || !token_symbol || !token_name) {
@@ -476,7 +492,7 @@ export function CreateCauseFormEnhanced() {
               <div className="flex-1">
                 <h3 className="font-medium">Secure Two-Step Process</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  After submitting your cause details, you'll be redirected to Stripe's secure platform to set up payment processing. This ensures your donations are handled safely and compliantly.
+                  After submitting your cause details, you&apos;ll be redirected to Stripe&apos;s secure platform to set up payment processing. This ensures your donations are handled safely and compliantly.
                 </p>
               </div>
             </div>
@@ -653,7 +669,7 @@ export function CreateCauseFormEnhanced() {
                   {fieldValidation.tokenName.message && !fieldValidation.tokenName.isValid && (
                     <p className="text-sm text-red-500">{fieldValidation.tokenName.message}</p>
                   )}
-                  <p className="text-xs text-muted-foreground">Example: "Ocean Cleanup Token"</p>
+                  <p className="text-xs text-muted-foreground">Example: &quot;Ocean Cleanup Token&quot;</p>
                 </div>
 
                 <div className="space-y-2">
@@ -689,7 +705,7 @@ export function CreateCauseFormEnhanced() {
                   {fieldValidation.tokenSymbol.message && !fieldValidation.tokenSymbol.isValid && (
                     <p className="text-sm text-red-500">{fieldValidation.tokenSymbol.message}</p>
                   )}
-                  <p className="text-xs text-muted-foreground">Example: "OCT" (usually 3-5 characters)</p>
+                  <p className="text-xs text-muted-foreground">Example: &quot;OCT&quot; (usually 3-5 characters)</p>
                 </div>
               </div>
             </div>
@@ -729,10 +745,10 @@ export function CreateCauseFormEnhanced() {
                     <div className="flex-1">
                       <h3 className="font-medium text-amber-900">Welcome back! Your draft is ready</h3>
                       <p className="text-sm text-amber-800 mt-1">
-                        We've loaded your saved information. When you're ready, continue to Stripe to complete your payment setup.
+                        We&apos;ve loaded your saved information. When you&apos;re ready, continue to Stripe to complete your payment setup.
                       </p>
                       <p className="text-xs text-amber-700 mt-2">
-                        Note: Drafts are saved for 24 hours. After that, you'll need to start fresh.
+                        Note: Drafts are saved for 24 hours. After that, you&apos;ll need to start fresh.
                       </p>
                     </div>
                   </div>

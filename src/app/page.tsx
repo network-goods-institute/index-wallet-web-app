@@ -57,7 +57,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-bold">Make a Donation</h3>
                 <p className="text-muted-foreground">
-                  Contribute any amount you're comfortable with to support the cause.
+                  Contribute any amount you&apos;re comfortable with to support the cause.
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-2">

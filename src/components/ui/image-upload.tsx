@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback } from "react"
-import { Upload, X, Image, Loader2 } from "lucide-react"
+import { Upload, X, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 

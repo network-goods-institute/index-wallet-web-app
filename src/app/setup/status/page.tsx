@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { StatusIndicator } from "@/components/ui/status-indicator"
 import { ProgressIndicator } from "@/components/ui/progress-indicator"
@@ -22,7 +22,7 @@ interface DraftStatus {
   message?: string
 }
 
-export default function SetupStatusPage() {
+function SetupStatusContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const draftId = searchParams.get("draft")
@@ -70,7 +70,7 @@ export default function SetupStatusPage() {
       setError("Network error. Please check your connection.")
       setStatus("error")
     }
-  }, [draftId, router])
+  }, [draftId])
 
   useEffect(() => {
     checkStatus()
@@ -189,7 +189,7 @@ export default function SetupStatusPage() {
               />
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-6 mb-6">
                 <p className="text-sm text-orange-800">
-                  <strong>What's next?</strong> Click the button below to return to Stripe and complete your setup. This includes verifying your identity and adding bank account details for receiving donations.
+                  <strong>What&apos;s next?</strong> Click the button below to return to Stripe and complete your setup. This includes verifying your identity and adding bank account details for receiving donations.
                 </p>
               </div>
               <div className="flex justify-center">
@@ -254,4 +254,18 @@ export default function SetupStatusPage() {
   }
 
   return null
+}
+
+export default function SetupStatusPage() {
+  return (
+    <Suspense fallback={
+      <div className="container max-w-2xl py-30">
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    }>
+      <SetupStatusContent />
+    </Suspense>
+  )
 }

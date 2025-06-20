@@ -1,14 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const apiUrl = 'http://127.0.0.1:8080';
-    if (!apiUrl) {
-      throw new Error('API_URL environment variable is not set');
-    }
-
-    console.log(apiUrl)
-    // Force IPv4 connection
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
+    
     const response = await fetch(`${apiUrl}/causes`);
 
     if (!response.ok) {
@@ -16,10 +11,8 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('Response data:', data);
     return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error fetching causes:', error);
+  } catch {
     return NextResponse.json(
       { 
         error: 'internal_server_error',

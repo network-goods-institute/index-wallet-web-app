@@ -44,12 +44,6 @@ export async function POST(request: NextRequest) {
     // Forward the request to the backend
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080'
     
-    console.log('Creating donation checkout session:', {
-      cause_id: body.cause_id,
-      amount_cents: body.amount_cents,
-      user_wallet_address: body.user_wallet_address.substring(0, 10) + '...'
-    })
-    
     const response = await fetch(`${apiUrl}/causes/donate`, {
       method: 'POST',
       headers: {
@@ -60,7 +54,6 @@ export async function POST(request: NextRequest) {
     })
 
     const responseData = await response.json()
-    console.log('Backend response:', response.status, responseData)
 
     if (!response.ok) {
       // Forward backend error
@@ -72,7 +65,6 @@ export async function POST(request: NextRequest) {
 
     // Validate response has required fields
     if (!responseData.checkout_url || !responseData.session_id) {
-      console.error('Invalid backend response:', responseData)
       return NextResponse.json(
         { error: 'Invalid response', message: 'Backend returned invalid checkout session data' },
         { status: 500 }
@@ -87,8 +79,7 @@ export async function POST(request: NextRequest) {
       checkout_url: responseData.checkout_url,
       session_id: responseData.session_id
     })
-  } catch (error) {
-    console.error('Error creating donation session:', error)
+  } catch {
     return NextResponse.json(
       { 
         error: 'Internal server error',

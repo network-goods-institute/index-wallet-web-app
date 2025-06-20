@@ -12,8 +12,16 @@ interface CreateCauseRequest {
 }
 
 // Validation function to check if the request body has all required fields
-function validateCauseData(data: any): { valid: boolean; errors: string[] } {
+function validateCauseData(data: unknown): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
+  
+  // Type guard to check if data is an object
+  if (!data || typeof data !== 'object') {
+    errors.push('Invalid request body');
+    return { valid: false, errors };
+  }
+  
+  const causeData = data as Record<string, unknown>;
   
   // Check for required fields
   const requiredFields: (keyof CreateCauseRequest)[] = [
@@ -27,18 +35,20 @@ function validateCauseData(data: any): { valid: boolean; errors: string[] } {
   ];
   
   for (const field of requiredFields) {
-    if (!data[field]) {
+    if (!causeData[field]) {
       errors.push(`${field} is required`);
     }
   }
   
   // Validate email format
-  if (data.creator_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.creator_email)) {
+  if (causeData.creator_email && typeof causeData.creator_email === 'string' && 
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(causeData.creator_email)) {
     errors.push('Invalid email format');
   }
   
   // Validate token abbreviation (3-5 characters)
-  if (data.token_symbol && (data.token_symbol.length < 2 || data.token_symbol.length > 5)) {
+  if (causeData.token_symbol && typeof causeData.token_symbol === 'string' && 
+      (causeData.token_symbol.length < 2 || causeData.token_symbol.length > 5)) {
     errors.push('Token abbreviation must be between 2 and 5 characters');
   }
   
@@ -63,16 +73,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward the request to the backend
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) {
-      throw new Error('API_URL environment variable is not set');
-    }
-
-    console.log('API URL:', apiUrl);
-    console.log('Full URL:', `${apiUrl}/causes`);
-    console.log('Request body:', data);
-
-    // Force IPv4 connection
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8080';
+    
     const response = await fetch(`${apiUrl}/causes`, {
       method: 'POST',
       headers: {
@@ -83,8 +85,6 @@ export async function POST(request: NextRequest) {
     });
 
     const responseData = await response.json();
-    console.log('Backend response:', responseData);
-    console.log('Response status:', response.status);
 
     if (!response.ok) {
       // Forward the error from the backend
@@ -120,8 +120,7 @@ export async function POST(request: NextRequest) {
         { status: response.status }
       );
     }
-  } catch (error) {
-    console.error('Error creating cause:', error);
+  } catch {
     return NextResponse.json(
       { 
         error: 'internal_server_error',

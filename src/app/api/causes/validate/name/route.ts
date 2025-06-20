@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
 
     // Check if response is ok
     if (!response.ok) {
-      console.error('Backend validation failed:', response.status, response.statusText)
       // Return a default response instead of throwing
       return NextResponse.json({ 
         valid: true, 
@@ -35,16 +34,14 @@ export async function POST(request: NextRequest) {
     try {
       const data = await response.json()
       return NextResponse.json(data)
-    } catch (parseError) {
-      console.error('Failed to parse backend response:', parseError)
+    } catch {
       // Return a default response if parsing fails
       return NextResponse.json({ 
         valid: true, 
         message: null 
       })
     }
-  } catch (error) {
-    console.error('Error validating name:', error)
+  } catch {
     return NextResponse.json(
       { valid: false, message: 'Failed to validate name' },
       { status: 500 }

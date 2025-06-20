@@ -1,5 +1,4 @@
 import { CausesList } from "@/components/causes-list"
-import { CausesFilter } from "@/components/causes-filter"
 
 export default function CausesPage() {
   return (

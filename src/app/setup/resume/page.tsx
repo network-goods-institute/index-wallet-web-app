@@ -78,7 +78,7 @@ export default function ResumePage() {
         <CardHeader>
           <CardTitle>Find Your Draft</CardTitle>
           <CardDescription>
-            We'll use your email to locate any incomplete cause setups
+            We&apos;ll use your email to locate any incomplete cause setups
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -131,7 +131,7 @@ export default function ResumePage() {
 
       <div className="mt-8 text-center">
         <p className="text-sm text-muted-foreground mb-4">
-          Don't have a draft to resume?
+          Don&apos;t have a draft to resume?
         </p>
         <Button variant="outline" onClick={() => router.push("/create")}>
           Create New Cause
