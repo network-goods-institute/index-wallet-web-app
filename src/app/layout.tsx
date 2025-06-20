@@ -8,11 +8,15 @@ import { IndexHeader } from "@/components/index-header"
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "block", // Wait for font to load before showing text
+  preload: true,
 })
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
+  display: "block", // Wait for font to load before showing text
+  preload: true,
 })
 
 export const metadata: Metadata = {
@@ -27,9 +31,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet" />
-      </head>
       <body className={`${jakarta.variable} ${playfair.variable} font-sans`}>
         <div className="flex min-h-screen flex-col">
           <IndexHeader />

@@ -25,9 +25,9 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        serif: ["var(--font-serif)"],
-        "sf-rounded": ["SF-Pro-Rounded", "var(--font-sans)"],
+        sans: ["var(--font-sans)", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "Times", "serif"],
+        "sf-rounded": ["SF-Pro-Rounded", "var(--font-sans)", "system-ui", "sans-serif"],
       },
       colors: {
         border: "var(--border)",
