@@ -5,7 +5,7 @@ import { DonationForm } from "@/components/donation-form"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Share2, Facebook, Mail } from "lucide-react"
+import { ArrowLeft, Share2, Facebook, Mail, CheckCircle2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -62,6 +62,15 @@ export default function CauseDetailPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [walletAddress, setWalletAddress] = useState<string>("")
+  const [walletValidation, setWalletValidation] = useState<{
+    isValidating: boolean
+    isValid: boolean
+    username?: string
+    error?: string
+  }>({
+    isValidating: false,
+    isValid: false
+  })
   const [causeId, setCauseId] = useState<string | null>(null)
   const router = useRouter()
 
@@ -95,6 +104,50 @@ export default function CauseDetailPage({ params }: { params: Promise<{ id: stri
 
     fetchCause();
   }, [causeId]);
+
+  // Validate wallet address
+  useEffect(() => {
+    if (!walletAddress || walletAddress.length < 20) {
+      setWalletValidation({
+        isValidating: false,
+        isValid: false
+      });
+      return;
+    }
+
+    const validateWallet = async () => {
+      setWalletValidation(prev => ({ ...prev, isValidating: true, error: undefined }));
+      
+      try {
+        const response = await fetch(`/api/wallet/${walletAddress}/user`);
+        const data = await response.json();
+        
+        if (response.ok && data.exists) {
+          setWalletValidation({
+            isValidating: false,
+            isValid: true,
+            username: data.username
+          });
+        } else {
+          setWalletValidation({
+            isValidating: false,
+            isValid: false,
+            error: "Wallet address not found. Please check your address."
+          });
+        }
+      } catch {
+        setWalletValidation({
+          isValidating: false,
+          isValid: false,
+          error: "Failed to validate wallet address"
+        });
+      }
+    };
+
+    // Debounce the validation
+    const timeoutId = setTimeout(validateWallet, 500);
+    return () => clearTimeout(timeoutId);
+  }, [walletAddress]);
 
   if (loading) {
     return (
@@ -322,20 +375,43 @@ export default function CauseDetailPage({ params }: { params: Promise<{ id: stri
                       <label className="font-[SF-Pro-Rounded] font-semibold text-sm">
                         Your Wallet Address
                       </label>
-                      <Input
-                        type="text"
-                        placeholder="Find in your wallet app"
-                        value={walletAddress}
-                        onChange={(e) => setWalletAddress(e.target.value)}
-                        className="font-mono"
-                      />
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          placeholder="Find your address in the Index Wallets app"
+                          value={walletAddress}
+                          onChange={(e) => setWalletAddress(e.target.value)}
+                          className={`font-mono pr-10 ${
+                            walletValidation.error ? 'border-destructive' : 
+                            walletValidation.isValid ? 'border-green-500' : ''
+                          }`}
+                        />
+                        {walletValidation.isValidating && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                          </div>
+                        )}
+                        {walletValidation.isValid && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          </div>
+                        )}
+                      </div>
                       {!walletAddress && (
                         <p className="text-sm text-destructive">Required to receive receipts</p>
+                      )}
+                      {walletValidation.error && (
+                        <p className="text-sm text-destructive">{walletValidation.error}</p>
+                      )}
+                      {walletValidation.username && (
+                        <p className="text-sm text-green-600">
+                          Wallet verified • {walletValidation.username}
+                        </p>
                       )}
                     </div>
 
                     {/* Donation Form */}
-                    {walletAddress ? (
+                    {walletAddress && walletValidation.isValid ? (
                       <DonationForm 
                         causeId={cause._id.$oid} 
                         walletAddress={walletAddress} 
@@ -350,7 +426,9 @@ export default function CauseDetailPage({ params }: { params: Promise<{ id: stri
                         disabled 
                         className="w-full font-[SF-Pro-Rounded] font-semibold"
                       >
-                        Enter wallet address to donate
+                        {!walletAddress ? 'Enter wallet address to donate' : 
+                         walletValidation.isValidating ? 'Validating wallet...' :
+                         'Valid wallet address required'}
                       </Button>
                     )}
                   </>

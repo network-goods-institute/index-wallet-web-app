@@ -22,7 +22,7 @@ export function MainNav() {
           Create Public Good
         </Link>
         <Link
-          href="/about"
+          href="https://indexwallets.org"
           className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           About Us

@@ -271,7 +271,7 @@ export function DonationForm({ causeId, walletAddress, causeName, currentPrice =
             Creating secure checkout...
           </>
         ) : (
-          `Donate ${getAmountInCents() ? displayAmount : ""}`
+          `Support for ${getAmountInCents() ? displayAmount : ""}`
         )}
       </Button>
 

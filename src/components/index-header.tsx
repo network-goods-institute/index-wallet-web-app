@@ -47,14 +47,14 @@ export function IndexHeader() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           <NavLink href="/causes">
-            <span className="whitespace-nowrap">Explore Public Goods</span>
-            <span className="hover-text whitespace-nowrap">Explore Public Goods</span>
+            <span className="whitespace-nowrap">Explore Causes</span>
+            <span className="hover-text whitespace-nowrap">Explore Causes</span>
           </NavLink>
           <NavLink href="/create">
-            <span className="whitespace-nowrap">Create Public Good</span>
-            <span className="hover-text whitespace-nowrap">Create Public Good</span>
+            <span className="whitespace-nowrap">Create Cause</span>
+            <span className="hover-text whitespace-nowrap">Create Cause</span>
           </NavLink>
-          <NavLink href="/about">
+          <NavLink href="https://www.indexwallets.org">
             <span className="whitespace-nowrap">About Us</span>
             <span className="hover-text whitespace-nowrap">About Us</span>
           </NavLink>
@@ -82,12 +82,12 @@ export function IndexHeader() {
         >
           <nav className="flex flex-col gap-4">
             <MobileNavLink href="/causes" onClick={() => setIsMobileMenuOpen(false)}>
-              Explore Public Goods
+              Explore Causes
             </MobileNavLink>
             <MobileNavLink href="/create" onClick={() => setIsMobileMenuOpen(false)}>
-              Create Public Good
+              Create Cause
             </MobileNavLink>
-            <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>
+            <MobileNavLink href="https://www.indexwallets.org" onClick={() => setIsMobileMenuOpen(false)}>
               About Us
             </MobileNavLink>
           </nav>

@@ -1,9 +1,10 @@
 "use client"
 
 import React, { useState, useRef, useCallback } from "react"
-import { Upload, X, Loader2 } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 interface ImageUploadProps {
   onImageChange: (file: File | null, previewUrl: string | null) => void
@@ -188,8 +189,8 @@ export function ImageUpload({
             {isUploading && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg">
                 <div className="flex flex-col items-center gap-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">Uploading...</span>
+                  <LoadingSpinner size="md" />
+                  <span className="text-sm text-muted-foreground font-[SF-Pro-Rounded]">Uploading...</span>
                 </div>
               </div>
             )}
