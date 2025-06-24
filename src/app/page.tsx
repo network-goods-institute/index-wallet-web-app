@@ -64,9 +64,9 @@ export default function Home() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary">
                   <span className="text-2xl font-bold text-primary-foreground">3</span>
                 </div>
-                <h3 className="text-xl font-bold">Track Impact</h3>
+                <h3 className="text-xl font-bold">Receive Receipts</h3>
                 <p className="text-muted-foreground">
-                  Follow the progress and see how your contribution is making a difference.
+                  Receive donation receipts in exchange for your contributions, spend them at participating vendors.
                 </p>
               </div>
             </div>
