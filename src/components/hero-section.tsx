@@ -78,15 +78,15 @@ export function HeroSection() {
               size="lg" 
               className="bg-[#fbd03d] hover:bg-[#fbd03d]/90 text-black font-[SF-Pro-Rounded] font-semibold text-base px-8 py-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
-              <Link href="/causes">Explore Public Goods</Link>
+              <Link href="/causes">Explore Causes</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="bg-white/20 backdrop-blur-sm border-2 border-white/40 text-white hover:bg-white/30 font-[SF-Pro-Rounded] font-semibold text-base px-8 py-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              className="bg-white backdrop-blur-sm border-2 border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300 font-[SF-Pro-Rounded] font-semibold text-base px-8 py-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
-              <Link href="/create">Create Public Good</Link>
+              <Link href="/create">Create Cause</Link>
             </Button>
           </motion.div>
         </motion.div>
