@@ -44,7 +44,7 @@ export function HeroSection() {
         <Image src="/svgs/shock.svg" alt="" width={60} height={30} />
       </div>
 
-      <div className="container relative z-10 mx-auto px-4 md:px-6 pt-20 pb-32 md:pt-32 md:pb-40">
+      <div className="container relative z-10 mx-auto px-4 md:px-6 pt-20 pb-8 md:pt-32 ">
         <motion.div
           initial={{ y: "30%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

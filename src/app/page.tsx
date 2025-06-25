@@ -10,7 +10,7 @@ export default function Home() {
       <HeroSection />
 
       {/* Featured Causes */}
-      <section className="w-full py-12 md:py-24 bg-white">
+      <section className="w-full py-12 bg-white">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2 max-w-3xl">
