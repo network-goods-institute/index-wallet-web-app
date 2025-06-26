@@ -262,7 +262,7 @@ export function DonationForm({ causeId, walletAddress, causeName, currentPrice =
       <Button 
         onClick={handleDonate} 
         disabled={!getAmountInCents() || isLoading}
-        className="w-full font-semibold"
+        className="w-full font-semibold bg-[#049952] hover:bg-[#049952]/90 text-white"
         size="lg"
       >
         {isLoading ? (
